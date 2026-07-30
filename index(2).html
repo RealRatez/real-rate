@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Saver's Almanac — America's Simplest Economic Indicator</title>
+<meta name="description" content="One number tells you whether it's a good time to save or a good time to borrow. Duration-matched rate and inflation pairs, read the verdict.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0c1015;
+    --panel: #12171e;
+    --panel-2: #161c24;
+    --line: #263041;
+    --text: #e9edf2;
+    --muted: #8b96a6;
+    --muted-2: #5d6779;
+    --amber: #d4a657;
+    --amber-dim: #8a7040;
+
+    --z-red: #b8493f;
+    --z-lightred: #c98269;
+    --z-yellow: #cfb15a;
+    --z-lightgreen: #8fb583;
+    --z-green: #4f9b6e;
+
+    /* parchment masthead */
+    --paper: #e7dcc0;
+    --paper-2: #ddd0ae;
+    --ink: #2b2013;
+    --ink-2: #59492f;
+    --ink-3: #7a6a4a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  ::selection{background:var(--amber-dim);color:#fff;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ============ MASTHEAD (parchment / revolutionary-era) ============ */
+  .masthead{
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(ellipse 500px 300px at 15% 20%, rgba(120,95,50,0.10), transparent 60%),
+      radial-gradient(ellipse 400px 260px at 85% 75%, rgba(120,95,50,0.09), transparent 60%),
+      radial-gradient(ellipse 600px 400px at 50% 100%, rgba(90,70,35,0.08), transparent 65%),
+      repeating-linear-gradient(0deg, rgba(90,70,35,0.025) 0px, rgba(90,70,35,0.025) 1px, transparent 1px, transparent 3px);
+    color:var(--ink);
+    padding-bottom:6px;
+  }
+  .masthead-inner{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+  .masthead nav{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;border-bottom:2px solid var(--ink);border-top:2px solid var(--ink);
+    margin-top:18px;
+  }
+  .masthead nav .est{font-family:'EB Garamond',serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
+  .masthead nav .links a{
+    font-family:'EB Garamond',serif;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-2);text-decoration:none;margin-left:24px;
+  }
+  .masthead nav .links a:hover{color:var(--ink);}
+
+  .hero{padding:38px 0 34px;text-align:center;}
+  .eyebrow{
+    font-family:'EB Garamond',serif;font-weight:600;font-size:13px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--ink-2);margin-bottom:18px;
+  }
+  .rule{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 22px;max-width:340px;}
+  .rule .line{flex:1;height:1px;background:var(--ink-3);}
+  .rule .fleuron{font-size:15px;color:var(--ink-2);}
+
+  h1{
+    font-family:'IM Fell English SC', serif;font-weight:400;font-size:58px;line-height:1.05;
+    margin:0 0 16px;letter-spacing:.01em;color:var(--ink);
+    text-shadow:0 1px 0 rgba(255,255,255,0.25);
+  }
+  .subtitle{
+    font-family:'IM Fell English',serif;font-style:italic;font-size:16px;color:var(--ink-2);
+    max-width:520px;margin:0 auto 22px;line-height:1.5;
+  }
+  .lede{
+    font-family:'EB Garamond',serif;font-size:18px;line-height:1.65;color:var(--ink-2);
+    max-width:600px;margin:0 auto;
+  }
+  .lede strong{color:var(--ink);font-weight:600;}
+
+  /* torn/deckled edge into the dark tool section */
+  .deckle{
+    height:22px;background:var(--paper);
+    clip-path:polygon(0% 0%,100% 0%,100% 40%,97% 100%,94% 30%,91% 90%,88% 20%,85% 80%,82% 15%,79% 95%,76% 25%,73% 85%,70% 10%,67% 90%,64% 30%,61% 95%,58% 15%,55% 80%,52% 20%,49% 90%,46% 10%,43% 85%,40% 25%,37% 95%,34% 15%,31% 80%,28% 20%,25% 90%,22% 10%,19% 85%,16% 25%,13% 95%,10% 15%,7% 80%,4% 30%,1% 90%,0% 40%);
+  }
+
+  /* ============ TOOL (dark) ============ */
+  .tool-section{padding-top:26px;}
+
+  .pairs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+  .pair-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 16px 14px;
+    cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .pair-card:hover{border-color:var(--amber-dim);}
+  .pair-card.selected{border-color:var(--amber);background:rgba(212,166,87,0.07);}
+  .pair-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);margin-bottom:6px;}
+  .pair-title{font-family:'Spectral',serif;font-weight:600;font-size:15px;margin-bottom:4px;}
+  .pair-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+
+  .verdict{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:30px 28px 26px;margin-bottom:22px;text-align:center;
+  }
+  .verdict-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-bottom:12px;}
+  .verdict-headline{font-family:'Spectral',serif;font-weight:700;font-size:30px;margin:0 0 8px;transition:color .2s ease;}
+  .verdict-sub{font-size:14.5px;color:var(--muted);margin:0 0 26px;}
+
+  .gauge{position:relative;height:14px;border-radius:7px;overflow:visible;display:flex;margin:0 4px 10px;}
+  .gauge .seg{height:100%;}
+  .gauge .seg:first-child{border-radius:7px 0 0 7px;}
+  .gauge .seg:last-child{border-radius:0 7px 7px 0;}
+  .gauge .needle{
+    position:absolute;top:-7px;width:2px;height:28px;background:var(--text);
+    transform:translateX(-1px);transition:left .2s ease;
+  }
+  .gauge .needle::after{
+    content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+    width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+    border-top:6px solid var(--text);
+  }
+  .gauge-ticks{display:flex;justify-content:space-between;padding:0 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted-2);margin-bottom:4px;}
+  .gauge-caption{display:flex;justify-content:space-between;padding:0 4px;font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;}
+
+  .equation{
+    display:flex;align-items:stretch;gap:0;background:var(--panel);
+    border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:6px;
+  }
+  .eq-cell{flex:1;padding:20px 20px;position:relative;}
+  .eq-cell + .eq-cell{border-left:1px solid var(--line);}
+  .eq-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px;}
+  .eq-value-row{display:flex;align-items:baseline;gap:2px;}
+  .eq-value-row input{
+    width:110px;background:transparent;border:none;border-bottom:1px dashed var(--muted-2);
+    color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;padding:0 0 2px;
+  }
+  .eq-value-row input:focus{outline:none;border-bottom:1px solid var(--amber);}
+  .eq-value-row .pct{font-size:18px;color:var(--muted);}
+  .eq-value{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:var(--text);line-height:1;}
+  .eq-name{font-size:12.5px;color:var(--muted);margin-top:10px;}
+  .eq-meta{font-size:10.5px;color:var(--muted-2);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+  .eq-op{display:flex;align-items:center;justify-content:center;width:52px;font-family:'IBM Plex Mono',monospace;font-size:20px;color:var(--amber);background:var(--panel-2);flex:none;}
+  .eq-cell.result{background:var(--panel-2);}
+  .eq-cell.result .eq-value{font-size:36px;}
+
+  .asof{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted-2);text-align:center;margin-top:10px;margin-bottom:28px;}
+
+  @media (max-width:720px){
+    h1{font-size:38px;}
+    .masthead nav{flex-direction:column;gap:10px;align-items:flex-start;}
+    .pairs{grid-template-columns:1fr;}
+    .equation{flex-direction:column;} .eq-op{width:100%;height:34px;}
+    .verdict-headline{font-size:24px;}
+  }
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;}
+
+  .about{padding:36px 0;border-top:1px solid var(--line);margin-top:12px;}
+  .about h3{font-family:'Spectral',serif;font-size:18px;margin:0 0 10px;}
+  .about p{font-size:14px;line-height:1.7;color:var(--muted);max-width:620px;}
+
+  footer{margin-top:8px;font-size:11.5px;color:var(--muted-2);line-height:1.7;border-top:1px solid var(--line);padding:20px 0 40px;}
+  footer .note{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <nav>
+      <div class="est">Est. 2026 &middot; No. I</div>
+      <div class="links">
+        <a href="#tool">Indicator</a>
+        <a href="#about">About</a>
+        <a href="https://YOUR-SUBSTACK.substack.com" target="_blank">Newsletter</a>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="eyebrow">America's Simplest Economic Indicator</div>
+      <div class="rule"><span class="line"></span><span class="fleuron">&#10070;</span><span class="line"></span></div>
+      <h1>The Saver's Almanac</h1>
+      <p class="subtitle">Shall ye Deploy, or Shall ye Hoard thy Capital?</p>
+      <p class="lede">One number tells you whether financial conditions are loose or tight. The real rate (nominal rate minus inflation) will tell you if it's a good time to save or a good time to borrow. Choose a scenario below and read the verdict.</p>
+    </div>
+  </div>
+</div>
+<div class="deckle"></div>
+
+<div class="wrap tool-section">
+
+  <div id="tool">
+
+    <div class="pairs" id="pairList"></div>
+
+    <div class="verdict">
+      <div class="verdict-label">Today's Reading</div>
+      <div class="verdict-headline" id="verdictHeadline">Savers' Market</div>
+      <p class="verdict-sub" id="verdictSub">Saving beats debt.</p>
+
+      <div class="gauge">
+        <div class="seg" style="width:25%;background:var(--z-red)"></div>
+        <div class="seg" style="width:18.75%;background:var(--z-lightred)"></div>
+        <div class="seg" style="width:12.5%;background:var(--z-yellow)"></div>
+        <div class="seg" style="width:18.75%;background:var(--z-lightgreen)"></div>
+        <div class="seg" style="width:25%;background:var(--z-green)"></div>
+        <div class="needle" id="needle" style="left:65%;"></div>
+      </div>
+      <div class="gauge-ticks">
+        <span>&minus;4%</span><span>&minus;2%</span><span>&minus;0.5%</span><span>+0.5%</span><span>+2%</span><span>+4%</span>
+      </div>
+      <div class="gauge-caption">
+        <span>Borrowers' market</span><span>Neutral</span><span>Savers' market</span>
+      </div>
+    </div>
+
+    <div class="equation">
+      <div class="eq-cell">
+        <div class="eq-label">Nominal Rate</div>
+        <div class="eq-value-row"><input id="nomInput" type="number" step="0.01"><span class="pct">%</span></div>
+        <div class="eq-name" id="nomName"></div>
+        <div class="eq-meta" id="nomMeta"></div>
+      </div>
+      <div class="eq-op">&minus;</div>
+      <div class="eq-cell">
+        <div class="eq-label">Inflation Measure</div>
+        <div class="eq-value-row"><input id="infInput" type="number" step="0.01"><span class="pct">%</span></div>
+        <div class="eq-name" id="infName"></div>
+        <div class="eq-meta" id="infMeta"></div>
+      </div>
+      <div class="eq-op">=</div>
+      <div class="eq-cell result">
+        <div class="eq-label">Real Rate</div>
+        <div class="eq-value" id="realDisplay">2.55<span class="pct">%</span></div>
+        <div class="eq-name">nominal minus inflation</div>
+      </div>
+    </div>
+    <div class="asof" id="asofLine"><!--@id:ASOF-->figures are the latest values available as of Jul&nbsp;9,&nbsp;2026 — edit either field to use your own numbers</div>
+
+  </div>
+
+  <div class="about" id="about">
+    <h3>Why this exists</h3>
+    <p>Every headline rate you hear — prime, Fed funds, the 10-year, your mortgage — is a nominal number, and nominal numbers lie by omission. The Saver's Almanac subtracts inflation from the rate you care about and tells you plainly whether the moment favors savers or borrowers. The three pairings above are matched by duration, so you're always comparing a rate and an inflation measure that speak to the same time horizon, rather than mixing a 10-year yield against a monthly CPI print.</p>
+    <p>The sign of that number is also shorthand for something bigger than your own savings account: <strong>a positive real rate means financial conditions are tight</strong> — money is expensive to borrow once inflation is accounted for, which cools spending and investment. <strong>A negative real rate means conditions are loose</strong> — borrowing is effectively subsidized by inflation, which tends to encourage spending, debt, and risk-taking. It's the same math the Fed watches when deciding whether policy is restrictive or accommodative — just applied to whatever rate matters to you.</p>
+    <p>Semi-regular readings and notes on what's moving the number live at the <a href="https://YOUR-SUBSTACK.substack.com" target="_blank" style="color:var(--amber);">newsletter</a>.</p>
+  </div>
+
+  <footer>
+    <div><b>10-Year Look</b> — US 10-Yr Treasury: 4.48% constant-maturity yield, Jul 8, 2026 (Fed H.15). 10-Yr TIPS Breakeven (T10YIE, FRED): 2.24%, Jul 6, 2026.</div>
+    <div style="margin-top:6px;"><b>Short-Term Look</b> — SOFR: 3.62%, Jul 7, 2026 (NY Fed). US CPI headline YoY: 4.2%, May 2026 release (published Jun 10, 2026); June data due Jul 14, 2026.</div>
+    <div style="margin-top:6px;"><b>Fed Policy &amp; Liquidity</b> — Fed Funds (effective): 3.63%, mid-point of the 3.50%&ndash;3.75% target range held since the Jun 16&ndash;17, 2026 FOMC meeting. Core PCE Deflator YoY: 3.40%, May 2026 (BEA, released Jun 25, 2026) — the Fed's preferred inflation gauge.</div>
+    <div style="margin-top:6px;">This is a simple point-in-time real rate (nominal minus a trailing or market-implied inflation reading), not a forecast of forward real yields. Not investment advice.</div>
+  </footer>
+
+</div>
+
+<script>
+const pairs = [
+  {
+    id:'10y', numeral:'I.', title:'10-Year Look',
+    desc:'US 10-Year Treasury vs. 10-Yr TIPS Breakeven',
+    nom:{ name:'US 10-Year Treasury', meta:'constant maturity · Jul 8, 2026', value:4.48 }, /*@id:DGS10*/
+    inf:{ name:'10-Yr TIPS Breakeven', meta:'T10YIE, FRED · Jul 6, 2026', value:2.24 }, /*@id:T10YIE*/
+  },
+  {
+    id:'short', numeral:'II.', title:'Short-Term Look',
+    desc:'SOFR vs. CPI Headline YoY',
+    nom:{ name:'SOFR', meta:'Secured Overnight Financing Rate · Jul 7, 2026', value:3.62 }, /*@id:SOFR*/
+    inf:{ name:'US CPI (headline, YoY)', meta:'May 2026 · released Jun 10, 2026', value:4.20 }, /*@id:CPI_YOY*/
+  },
+  {
+    id:'fed', numeral:'III.', title:'Fed Policy & Liquidity',
+    desc:'Fed Funds (Effective) vs. Core PCE Deflator',
+    nom:{ name:'Fed Funds Rate (effective)', meta:'target 3.50–3.75% · Jun 2026 FOMC', value:3.63 }, /*@id:DFF*/
+    inf:{ name:'Core PCE Deflator (YoY)', meta:"May 2026 · Fed's preferred gauge", value:3.40 }, /*@id:PCE_CORE_YOY*/
+  },
+];
+
+const zones = [
+  { max:-2,   name:'Borrowers\' Market', sub:'Debt is cheap. Borrowing beats saving, by a lot — financial conditions are loose.', color:'var(--z-red)' },
+  { max:-0.5, name:'Borrowers\' Market', sub:'Debt beats saving. Financial conditions lean loose.', color:'var(--z-lightred)' },
+  { max:0.5,  name:'Neutral',            sub:'It\'s a wash — pick based on need, not math. Financial conditions are roughly neutral.', color:'var(--z-yellow)' },
+  { max:2,    name:'Savers\' Market',    sub:'Saving beats debt. Financial conditions lean tight.', color:'var(--z-lightgreen)' },
+  { max:Infinity, name:'Savers\' Market', sub:'Cash is king. Saving beats debt, by a lot — financial conditions are tight.', color:'var(--z-green)' },
+];
+
+let selectedPairId = '10y';
+let current = {};
+
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2); }
+
+function selectPair(id){
+  const pair = pairs.find(p=>p.id===id);
+  selectedPairId = id;
+  current = {
+    nomValue: pair.nom.value, nomName: pair.nom.name, nomMeta: pair.nom.meta,
+    infValue: pair.inf.value, infName: pair.inf.name, infMeta: pair.inf.meta,
+  };
+  renderPairs();
+  renderEquation();
+}
+
+function renderPairs(){
+  const el = document.getElementById('pairList');
+  el.innerHTML = '';
+  pairs.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'pair-card' + (p.id===selectedPairId ? ' selected' : '');
+    card.innerHTML = `
+      <div class="pair-num">${p.numeral}</div>
+      <div class="pair-title">${p.title}</div>
+      <div class="pair-desc">${p.desc}</div>`;
+    card.addEventListener('click', ()=> selectPair(p.id));
+    el.appendChild(card);
+  });
+}
+
+function renderEquation(){
+  document.getElementById('nomInput').value = current.nomValue;
+  document.getElementById('nomName').textContent = current.nomName;
+  document.getElementById('nomMeta').textContent = current.nomMeta;
+  document.getElementById('infInput').value = current.infValue;
+  document.getElementById('infName').textContent = current.infName;
+  document.getElementById('infMeta').textContent = current.infMeta;
+  compute();
+}
+
+function compute(){
+  const real = current.nomValue - current.infValue;
+
+  const realEl = document.getElementById('realDisplay');
+  realEl.innerHTML = fmt(real) + '<span class="pct">%</span>';
+
+  const zone = zones.find(z => real <= z.max);
+  const headlineEl = document.getElementById('verdictHeadline');
+  const subEl = document.getElementById('verdictSub');
+  headlineEl.textContent = zone.name;
+  headlineEl.style.color = zone.color;
+  subEl.textContent = zone.sub;
+
+  const clamped = Math.max(-4, Math.min(4, real));
+  const pct = ((clamped + 4) / 8) * 100;
+  document.getElementById('needle').style.left = pct + '%';
+}
+
+document.getElementById('nomInput').addEventListener('input', (e)=>{
+  current.nomValue = parseFloat(e.target.value) || 0;
+  compute();
+});
+document.getElementById('infInput').addEventListener('input', (e)=>{
+  current.infValue = parseFloat(e.target.value) || 0;
+  compute();
+});
+
+selectPair('10y');
+</script>
+</body>
+</html>
