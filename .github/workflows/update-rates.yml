@@ -38,6 +38,10 @@ jobs:
         run: |
           git config user.name "saver-almanac-bot"
           git config user.email "actions@users.noreply.github.com"
+          echo "--- git status ---"
+          git status
+          echo "--- git diff (unstaged) ---"
+          git diff -- index.html || true
           git add index.html data/zone-state.json data/alerts.json 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Daily rate update: $(date -u +'%Y-%m-%d')"
