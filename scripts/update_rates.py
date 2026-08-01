@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 """
-Pulls the latest readings for The Saver's Almanac from FRED's public CSV
-endpoint (no API key required) and rewrites the hardcoded values inside
-index.html in place. Designed to be run daily by a GitHub Action.
+Pulls the latest readings for The Saver's Almanac from FRED and rewrites
+the hardcoded values inside index.html in place. Designed to be run daily
+by a GitHub Action.
+
+Data source:
+- Preferred: FRED's official API (api.stlouisfed.org), using a free API
+  key stored in the FRED_API_KEY repo secret. This is what FRED actually
+  wants automated/CI traffic to use, and is far more reliable from shared
+  cloud IP ranges (like GitHub Actions runners) than the CSV endpoint.
+- Fallback: the public fredgraph.csv download endpoint, used only if no
+  FRED_API_KEY is set. This endpoint is meant for interactive browser use
+  and has been observed to time out or get throttled from GitHub Actions'
+  IP ranges, so it's a degraded-mode fallback, not the primary path.
 
 How it works:
 - Each data point in index.html is tagged with a marker comment right after
   its `value:` field, e.g.  value:4.48 }, /*@id:DGS10*/
-- This script downloads the relevant FRED series, finds the latest
+- This script fetches the relevant FRED series, finds the latest
   non-blank observation, and replaces that number in the HTML.
 - For the two YoY (year-over-year) series (headline CPI, core PCE), it
   computes the % change from the index level 12 months prior rather than
@@ -17,7 +27,9 @@ How it works:
 
 import re
 import sys
+import time
 import urllib.request
+import urllib.error
 import datetime
 import csv
 import io
@@ -28,7 +40,17 @@ HTML_PATH = "index.html"
 STATE_PATH = "data/zone-state.json"
 ALERTS_PATH = "data/alerts.json"
 
+FRED_API_KEY = os.environ.get("FRED_API_KEY", "").strip()
+FRED_API_URL = (
+    "https://api.stlouisfed.org/fred/series/observations"
+    "?series_id={series}&api_key={key}&file_type=json"
+    "&sort_order=asc&observation_start={start}"
+)
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}"
+
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
+REQUEST_TIMEOUT = 45
 
 # Simple level series: just take the latest non-blank observation.
 LEVEL_SERIES = {
@@ -76,15 +98,43 @@ def classify_zone(real_rate):
     return ZONES[-1][1]
 
 
+def _with_retries(fn, series_id):
+    last_err = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return fn(series_id)
+        except Exception as e:
+            last_err = e
+            print(
+                f"WARN: attempt {attempt}/{MAX_RETRIES} failed for {series_id}: {e}",
+                file=sys.stderr,
+            )
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    raise last_err
+
+
+def fetch_api(series_id):
+    start = (datetime.date.today() - datetime.timedelta(days=800)).isoformat()
+    url = FRED_API_URL.format(series=series_id, key=FRED_API_KEY, start=start)
+    req = urllib.request.Request(url, headers={"User-Agent": "saver-almanac-bot/1.0"})
+    with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    out = []
+    for obs in payload.get("observations", []):
+        if obs.get("value") in (".", "", None):
+            continue
+        out.append((datetime.date.fromisoformat(obs["date"]), float(obs["value"])))
+    return out
+
+
 def fetch_csv(series_id):
     url = FRED_CSV.format(series=series_id)
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
         text = resp.read().decode("utf-8")
     reader = csv.reader(io.StringIO(text))
     rows = list(reader)
-    header = rows[0]
-    data_col = header[1]
     out = []
     for row in rows[1:]:
         if len(row) < 2 or row[1] == "." or row[1] == "":
@@ -94,8 +144,20 @@ def fetch_csv(series_id):
     return out
 
 
+def fetch_series(series_id):
+    """Prefer the official API (needs FRED_API_KEY); fall back to CSV scrape."""
+    if FRED_API_KEY:
+        return _with_retries(fetch_api, series_id)
+    print(
+        f"WARN: FRED_API_KEY not set — falling back to CSV scrape for {series_id} "
+        f"(less reliable from CI). Set the FRED_API_KEY repo secret to fix this.",
+        file=sys.stderr,
+    )
+    return _with_retries(fetch_csv, series_id)
+
+
 def latest_level(series_id):
-    obs = fetch_csv(series_id)
+    obs = fetch_series(series_id)
     if not obs:
         raise ValueError(f"No observations for {series_id}")
     date, value = obs[-1]
@@ -103,7 +165,7 @@ def latest_level(series_id):
 
 
 def latest_yoy(series_id):
-    obs = fetch_csv(series_id)
+    obs = fetch_series(series_id)
     if len(obs) < 13:
         raise ValueError(f"Not enough history for {series_id}")
     latest_date, latest_val = obs[-1]
