@@ -254,17 +254,24 @@ def main():
         values[sid] = value
         marker = f"/*@id:{sid}*/"
         date_str = fmt_date(date)
+        found_marker = False
         for i, line in enumerate(lines):
             if marker not in line:
                 continue
+            found_marker = True
             new_line = re.sub(r"value:[\d.]+(?=\s*\},)", f"value:{value:.2f}", line)
             if sid in UPDATE_META_DATE:
                 new_line = re.sub(
                     r"([A-Za-z]{3} \d{1,2}, \d{4})(?=')", date_str, new_line
                 )
             if new_line != line:
+                print(f"CHANGED {sid}: fetched {value:.2f} ({date_str})")
                 changed = True
                 lines[i] = new_line
+            else:
+                print(f"UNCHANGED {sid}: fetched {value:.2f} ({date_str}), matches existing")
+        if not found_marker:
+            print(f"WARN: marker /*@id:{sid}*/ not found anywhere in {HTML_PATH} — check the file wasn't altered", file=sys.stderr)
 
     for sid in YOY_SERIES:
         try:
@@ -274,24 +281,38 @@ def main():
             continue
         values[sid] = value
         marker = f"/*@id:{sid}*/"
+        found_marker = False
         for i, line in enumerate(lines):
             if marker not in line:
                 continue
+            found_marker = True
             new_line = re.sub(r"value:[\d.]+(?=\s*\},)", f"value:{value:.2f}", line)
             if new_line != line:
+                print(f"CHANGED {sid}: fetched {value:.2f}")
                 changed = True
                 lines[i] = new_line
+            else:
+                print(f"UNCHANGED {sid}: fetched {value:.2f}, matches existing")
+        if not found_marker:
+            print(f"WARN: marker /*@id:{sid}*/ not found anywhere in {HTML_PATH} — check the file wasn't altered", file=sys.stderr)
 
+    asof_marker_found = False
     for i, line in enumerate(lines):
         if "<!--@id:ASOF-->" in line:
+            asof_marker_found = True
             new_line = re.sub(
                 r"as of [A-Za-z]{3}&nbsp;\d{1,2},&nbsp;\d{4}",
                 f"as of {today_str.replace(' ', '&nbsp;').replace(',', ',&nbsp;').replace('&nbsp;&nbsp;', '&nbsp;')}",
                 line,
             )
             if new_line != line:
+                print(f"CHANGED asof line to {today_str}")
                 changed = True
                 lines[i] = new_line
+            else:
+                print(f"UNCHANGED asof line (already {today_str} or regex didn't match)")
+    if not asof_marker_found:
+        print("WARN: <!--@id:ASOF--> marker not found anywhere in the file", file=sys.stderr)
 
     # ---- zone-change detection (foundation for the future paid-tier alert) ----
     state = load_state()
