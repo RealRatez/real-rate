@@ -181,7 +181,7 @@
       <div class="links">
         <a href="#tool">Indicator</a>
         <a href="#about">About</a>
-        <a href="https://saversalmanac.substack.com/" target="_blank">Newsletter</a>
+        <a href="https://YOUR-SUBSTACK.substack.com" target="_blank">Newsletter</a>
       </div>
     </nav>
 
@@ -244,7 +244,7 @@
         <div class="eq-name">nominal minus inflation</div>
       </div>
     </div>
-    <div class="asof" id="asofLine"><!--@id:ASOF-->figures are the latest values available as of Aug&nbsp;1,&nbsp;2026 — edit either field to use your own numbers</div>
+    <div class="asof" id="asofLine"><!--@id:ASOF-->figures are the latest values available as of Jul&nbsp;9,&nbsp;2026 — edit either field to use your own numbers</div>
 
   </div>
 
@@ -252,13 +252,11 @@
     <h3>Why this exists</h3>
     <p>Every headline rate you hear — prime, Fed funds, the 10-year, your mortgage — is a nominal number, and nominal numbers lie by omission. The Saver's Almanac subtracts inflation from the rate you care about and tells you plainly whether the moment favors savers or borrowers. The three pairings above are matched by duration, so you're always comparing a rate and an inflation measure that speak to the same time horizon, rather than mixing a 10-year yield against a monthly CPI print.</p>
     <p>The sign of that number is also shorthand for something bigger than your own savings account: <strong>a positive real rate means financial conditions are tight</strong> — money is expensive to borrow once inflation is accounted for, which cools spending and investment. <strong>A negative real rate means conditions are loose</strong> — borrowing is effectively subsidized by inflation, which tends to encourage spending, debt, and risk-taking. It's the same math the Fed watches when deciding whether policy is restrictive or accommodative — just applied to whatever rate matters to you.</p>
-    <p>Semi-regular readings and notes on what's moving the number live at the <a href="https://saversalmanac.substack.com/" target="_blank" style="color:var(--amber);">newsletter</a>.</p>
+    <p>Semi-regular readings and notes on what's moving the number live at the <a href="https://YOUR-SUBSTACK.substack.com" target="_blank" style="color:var(--amber);">newsletter</a>.</p>
   </div>
 
   <footer>
-    <div><b>10-Year Look</b> — US 10-Yr Treasury: 4.48% constant-maturity yield, Jul 8, 2026 (Fed H.15). 10-Yr TIPS Breakeven (T10YIE, FRED): 2.24%, Jul 6, 2026.</div>
-    <div style="margin-top:6px;"><b>Short-Term Look</b> — SOFR: 3.62%, Jul 7, 2026 (NY Fed). US CPI headline YoY: 4.2%, May 2026 release (published Jun 10, 2026); June data due Jul 14, 2026.</div>
-    <div style="margin-top:6px;"><b>Fed Policy &amp; Liquidity</b> — Fed Funds (effective): 3.63%, mid-point of the 3.50%&ndash;3.75% target range held since the Jun 16&ndash;17, 2026 FOMC meeting. Core PCE Deflator YoY: 3.40%, May 2026 (BEA, released Jun 25, 2026) — the Fed's preferred inflation gauge.</div>
+    <div id="footerSources"></div>
     <div style="margin-top:6px;">This is a simple point-in-time real rate (nominal minus a trailing or market-implied inflation reading), not a forecast of forward real yields. Not investment advice.</div>
   </footer>
 
@@ -269,20 +267,20 @@ const pairs = [
   {
     id:'10y', numeral:'I.', title:'10-Year Look',
     desc:'US 10-Year Treasury vs. 10-Yr TIPS Breakeven',
-    nom:{ name:'US 10-Year Treasury', meta:'constant maturity · Jul 30, 2026', value:4.68 }, /*@id:DGS10*/
-    inf:{ name:'10-Yr TIPS Breakeven', meta:'T10YIE, FRED · Jul 31, 2026', value:2.28 }, /*@id:T10YIE*/
+    nom:{ name:'US 10-Year Treasury', meta:'constant maturity · Jul 8, 2026', value:4.48 }, /*@id:DGS10*/
+    inf:{ name:'10-Yr TIPS Breakeven', meta:'T10YIE, FRED · Jul 6, 2026', value:2.24 }, /*@id:T10YIE*/
   },
   {
     id:'short', numeral:'II.', title:'Short-Term Look',
     desc:'SOFR vs. CPI Headline YoY',
-    nom:{ name:'SOFR', meta:'Secured Overnight Financing Rate · Jul 30, 2026', value:3.65 }, /*@id:SOFR*/
-    inf:{ name:'US CPI (headline, YoY)', meta:'May 2026 · released Jun 10, 2026', value:3.46 }, /*@id:CPI_YOY*/
+    nom:{ name:'SOFR', meta:'Secured Overnight Financing Rate · Jul 7, 2026', value:3.62 }, /*@id:SOFR*/
+    inf:{ name:'US CPI (headline, YoY)', meta:'May 2026 · released Jun 10, 2026', value:4.20 }, /*@id:CPI_YOY*/
   },
   {
     id:'fed', numeral:'III.', title:'Fed Policy & Liquidity',
     desc:'Fed Funds (Effective) vs. Core PCE Deflator',
     nom:{ name:'Fed Funds Rate (effective)', meta:'target 3.50–3.75% · Jun 2026 FOMC', value:3.63 }, /*@id:DFF*/
-    inf:{ name:'Core PCE Deflator (YoY)', meta:"May 2026 · Fed's preferred gauge", value:3.29 }, /*@id:PCE_CORE_YOY*/
+    inf:{ name:'Core PCE Deflator (YoY)', meta:"May 2026 · Fed's preferred gauge", value:3.40 }, /*@id:PCE_CORE_YOY*/
   },
 ];
 
@@ -362,7 +360,17 @@ document.getElementById('infInput').addEventListener('input', (e)=>{
   compute();
 });
 
+function renderFooterSources(){
+  const el = document.getElementById('footerSources');
+  el.innerHTML = pairs.map(p => (
+    `<div style="margin-top:6px;"><b>${p.title}</b> — ` +
+    `${p.nom.name}: ${fmt(p.nom.value)}% (${p.nom.meta}). ` +
+    `${p.inf.name}: ${fmt(p.inf.value)}% (${p.inf.meta}).</div>`
+  )).join('');
+}
+
 selectPair('10y');
+renderFooterSources();
 </script>
 </body>
 </html>
