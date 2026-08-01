@@ -42,7 +42,14 @@ jobs:
           git status
           echo "--- git diff (unstaged) ---"
           git diff -- index.html || true
-          git add index.html data/zone-state.json data/alerts.json 2>/dev/null || true
+          # Add index.html and data/ SEPARATELY. Listing individual data
+          # files in one `git add` call (e.g. data/alerts.json, which only
+          # exists once a zone-change alert has actually fired) means git
+          # aborts the WHOLE add if any single path doesn't exist yet —
+          # silently dropping index.html's real changes along with it.
+          # Adding the directory instead sidesteps this entirely.
+          git add index.html
+          git add data/ 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Daily rate update: $(date -u +'%Y-%m-%d')"
             git push
