@@ -24,6 +24,10 @@ jobs:
       - name: Run update script
         run: python scripts/update_rates.py
         env:
+          # Required for reliable fetches from GitHub Actions' shared IPs —
+          # get a free key at fred.stlouisfed.org (My Account -> API Keys)
+          # and store it as a repo secret named FRED_API_KEY.
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           # Optional: set this repo secret once you're ready to actually
           # deliver zone-change alerts (e.g. a Zapier "Webhooks by Zapier"
           # URL). Safe to leave unset for now — alerts still get logged
