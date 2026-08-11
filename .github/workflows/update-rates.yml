@@ -52,7 +52,31 @@ jobs:
           git add data/ 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Daily rate update: $(date -u +'%Y-%m-%d')"
-            git push
+            # If something else (e.g. a manual edit via GitHub's web UI)
+            # pushed to main between this job's checkout and its push,
+            # the push below gets rejected with "fetch first". Rather than
+            # discarding this run's real data, fetch the latest and rebase
+            # our one commit on top, then retry — a few times, since a
+            # race can in principle repeat.
+            push_ok=false
+            for i in 1 2 3 4 5; do
+              if git push; then
+                push_ok=true
+                break
+              fi
+              echo "Push rejected (attempt $i/5) — fetching latest and rebasing..."
+              git fetch origin main
+              if ! git rebase origin/main; then
+                echo "::error::Rebase conflict — aborting. Will retry fresh on the next scheduled run."
+                git rebase --abort
+                break
+              fi
+              sleep $((i * 3))
+            done
+            if [ "$push_ok" != true ]; then
+              echo "::error::Failed to push after retries — today's data was fetched but not published. See log above."
+              exit 1
+            fi
           else
             echo "No changes to commit."
           fi
