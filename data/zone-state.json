@@ -2,16 +2,16 @@
   "10y": {
     "zone": "Savers' Market (strong)",
     "real_rate": 2.42,
-    "date": "2026-09-07"
+    "date": "2026-09-08"
   },
   "short": {
     "zone": "Neutral",
-    "real_rate": 0.36,
-    "date": "2026-09-07"
+    "real_rate": 0.35,
+    "date": "2026-09-08"
   },
   "fed": {
     "zone": "Neutral",
     "real_rate": 0.29,
-    "date": "2026-09-07"
+    "date": "2026-09-08"
   }
 }
