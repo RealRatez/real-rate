@@ -1,0 +1,10 @@
+[
+  {
+    "pair": "fed",
+    "label": "Fed Policy & Liquidity",
+    "from_zone": "Neutral",
+    "to_zone": "Savers' Market",
+    "real_rate": 0.54,
+    "date": "2026-09-19"
+  }
+]
