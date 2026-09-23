@@ -6,5 +6,13 @@
     "to_zone": "Savers' Market",
     "real_rate": 0.54,
     "date": "2026-09-19"
+  },
+  {
+    "pair": "short",
+    "label": "Short-Term Look",
+    "from_zone": "Neutral",
+    "to_zone": "Savers' Market",
+    "real_rate": 0.52,
+    "date": "2026-09-23"
   }
 ]
