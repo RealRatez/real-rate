@@ -1,17 +1,17 @@
 {
   "10y": {
     "zone": "Savers' Market (strong)",
-    "real_rate": 2.61,
-    "date": "2026-09-24"
+    "real_rate": 2.78,
+    "date": "2026-09-25"
   },
   "short": {
     "zone": "Savers' Market",
-    "real_rate": 0.52,
-    "date": "2026-09-24"
+    "real_rate": 0.53,
+    "date": "2026-09-25"
   },
   "fed": {
     "zone": "Savers' Market",
     "real_rate": 0.54,
-    "date": "2026-09-24"
+    "date": "2026-09-25"
   }
 }
