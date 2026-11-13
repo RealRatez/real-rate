@@ -67,10 +67,8 @@ YOY_SERIES = {
 }
 
 # Which markers also get their trailing "Mon D, YYYY" date in `meta` updated.
-# (Skipped for DFF since its meta describes the FOMC target range, not a
-# daily observation date, and for the YoY ids since their meta describes
-# the reporting month / release date, which needs more care than a simple
-# date swap.)
+# DFF's meta and the YoY ids' reporting-month labels are handled separately
+# in main().
 UPDATE_META_DATE = {"DGS10", "T10YIE", "SOFR"}
 
 # The three duration-matched pairs shown on the site, and the series ids
@@ -264,6 +262,15 @@ def main():
                 new_line = re.sub(
                     r"([A-Za-z]{3} \d{1,2}, \d{4})(?=')", date_str, new_line
                 )
+            elif sid == "DFF":
+                # The old meta hardcoded the FOMC target range and meeting month,
+                # which silently went stale. Use the observation date instead.
+                new_line = re.sub(
+                    r"meta:(['\"]).*?\1",
+                    f"meta:'effective rate · {date_str}'",
+                    new_line,
+                    count=1,
+                )
             if new_line != line:
                 print(f"CHANGED {sid}: fetched {value:.2f} ({date_str})")
                 changed = True
@@ -287,8 +294,12 @@ def main():
                 continue
             found_marker = True
             new_line = re.sub(r"value:[\d.]+(?=\s*\},)", f"value:{value:.2f}", line)
+            # Reporting month label (e.g. "Sep 2026"); drop stale "released ..." text.
+            month_str = date.strftime("%b %Y")
+            new_line = re.sub(r"\b[A-Z][a-z]{2} \d{4}\b", month_str, new_line, count=1)
+            new_line = re.sub(r" · released [A-Za-z]{3} \d{1,2}, \d{4}", "", new_line)
             if new_line != line:
-                print(f"CHANGED {sid}: fetched {value:.2f}")
+                print(f"CHANGED {sid}: fetched {value:.2f} ({month_str})")
                 changed = True
                 lines[i] = new_line
             else:
